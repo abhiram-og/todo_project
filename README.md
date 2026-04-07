@@ -1,5 +1,4 @@
-ToDo Web App
-
+# ToDo Web App
 A modern, "Domain Expansion" themed ToDo list application built with Django and customized with a premium dark aesthetic. Feel your cursed energy grow as you check off tasks!
 
 ## Features
