@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="todo-container">
+    <div class="header">
+        <h2>Tasks</h2>
+        <p class="subtitle">Stay organized, stay creative.</p>
+    </div>
+
+    <!-- ADD TASK -->
+    <form method="POST" class="add-task-form">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" name="title" placeholder="What needs to be done?" required autocomplete="off">
+            <button type="submit" name="add_task" class="add-btn">
+                <i class="ph ph-plus"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- TASK LIST -->
+    <div class="task-list">
+        {% for todo in todos %}
+        <div class="task">
+            
+            <!-- NORMAL TEXT -->
+            <div id="text-{{ todo.id }}" class="task-text">
+                <span class="task-circle"></span>
+                <span class="task-title">{{ todo.title }}</span>
+            </div>
+
+            <!-- EDIT MODE -->
+            <form method="POST"
+                  id="edit-{{ todo.id }}"
+                  class="edit-form"
+                  style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="task_id" value="{{ todo.id }}">
+                <input type="text"
+                       name="new_title"
+                       value="{{ todo.title }}"
+                       class="edit-input"
+                       required
+                       autocomplete="off">
+                <button type="submit"
+                        name="edit_task"
+                        class="btn btn-save"
+                        title="Save Changes">
+                    <i class="ph ph-check-bold"></i>
+                </button>
+            </form>
+
+            <!-- BUTTONS -->
+            <div class="btn-group">
+                <button type="button"
+                        onclick="enableEdit('{{ todo.id }}')"
+                        class="btn btn-edit"
+                        title="Edit Task">
+                    <i class="ph ph-pencil-simple"></i>
+                </button>
+
+                <form method="POST" class="delete-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{ todo.id }}">
+                    <button type="submit"
+                            name="delete_task"
+                            class="btn btn-delete"
+                            title="Delete Task">
+                        <i class="ph ph-trash"></i>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+        {% empty %}
+            <div class="empty-state">
+                <i class="ph ph-leaf empty-icon"></i>
+                <p>You're all caught up!</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <span class="task-count">
+            <i class="ph ph-list-numbers"></i> 
+            {{ task_count }} task{{ task_count|pluralize }}
+        </span>
+
+        {% if task_count > 0 %}
+        <form method="POST" class="clear-form">
+            {% csrf_token %}
+            <button type="submit"
+                    name="clear_all"
+                    class="clear-btn">
+                Clear All
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function enableEdit(id) {
+    document.getElementById("text-" + id).style.display = "none";
+    document.getElementById("edit-" + id).style.display = "flex";
+    document.getElementById("edit-" + id).querySelector('.edit-input').focus();
+    
+    // Hide buttons during edit
+    const taskEl = document.getElementById("edit-" + id).closest('.task');
+    const btnGroup = taskEl.querySelector('.btn-group');
+    if(btnGroup) btnGroup.style.display = 'none';
+}
+</script>
+
+</body>
+</html>
